@@ -7,14 +7,18 @@ set(OPENSSL_DIR ${CMAKE_CURRENT_BINARY_DIR}/${OPENSSL_NAME})
 if(MSVC)
     message(FATAL_ERROR "Windows isn't supported yet.")
 else()
+    execute_process(
+            COMMAND mkdir -p ${OPENSSL_DIR}/include
+    )
+
     add_custom_command(
-            OUTPUT ${OPENSSL_DIR}
+            OUTPUT ${OPENSSL_DIR}/CMakeLists.txt
             COMMAND tar -xf ${CMAKE_CURRENT_SOURCE_DIR}/${OPENSSL_NAME}.tar.gz
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
     add_custom_target(
             ${PROJECT_NAME}-unpack
-            DEPENDS ${OPENSSL_DIR}
+            DEPENDS ${OPENSSL_DIR}/CMakeLists.txt
     )
     add_custom_command(
             OUTPUT ${OPENSSL_DIR}/crypto/opensslconf.h ${OPENSSL_DIR}/Makefile.bak
