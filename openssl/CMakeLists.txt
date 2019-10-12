@@ -3,12 +3,13 @@ project(openssl C ASM)
 
 set(OPENSSL_NAME openssl-1.0.2t)
 set(OPENSSL_DIR ${CMAKE_CURRENT_BINARY_DIR}/${OPENSSL_NAME})
+set(OPENSSL_DIST_DIR ${CMAKE_CURRENT_BINARY_DIR}/dist)
 
 if(MSVC)
     message(FATAL_ERROR "Windows isn't supported yet.")
 else()
     execute_process(
-            COMMAND mkdir -p ${OPENSSL_DIR}/include
+            COMMAND mkdir -p ${OPENSSL_DIST_DIR}/include
     )
 
     add_custom_command(
@@ -22,7 +23,7 @@ else()
     )
     add_custom_command(
             OUTPUT ${OPENSSL_DIR}/crypto/opensslconf.h ${OPENSSL_DIR}/Makefile.bak
-            COMMAND ${OPENSSL_DIR}/config shared no-md2 no-mdc2 no-rc5 no-rc4 fips --with-fipsdir=${OPENSSL_FIPS_DIR}
+            COMMAND ${OPENSSL_DIR}/config shared no-md2 no-mdc2 no-rc5 no-rc4 fips --with-fipsdir=${OPENSSL_FIPS_DIR} --openssldir=${OPENSSL_DIST_DIR}
             WORKING_DIRECTORY ${OPENSSL_DIR}
             DEPENDS ${PROJECT_NAME}-unpack openssl-fips
     )
@@ -34,6 +35,7 @@ else()
             OUTPUT ${OPENSSL_DIR}/openssl.pc
             COMMAND make depend
             COMMAND make
+            COMMAND make install_sw
             WORKING_DIRECTORY ${OPENSSL_DIR}
             DEPENDS ${PROJECT_NAME}-config
     )
@@ -43,7 +45,7 @@ else()
     )
 endif(MSVC)
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY INCLUDE_DIR ${OPENSSL_DIR}/include)
+set_property(TARGET ${PROJECT_NAME} PROPERTY INCLUDE_DIR ${OPENSSL_DIST_DIR}/include)
 set_property(TARGET ${PROJECT_NAME} PROPERTY LIBRARIES_DIR ${OPENSSL_DIR})
 set_property(TARGET ${PROJECT_NAME} PROPERTY LIBCRYPTO_TARGET ${OPENSSL_DIR}/libcrypto.so)
 set_property(TARGET ${PROJECT_NAME} PROPERTY LIBSSL_TARGET ${OPENSSL_DIR}/libssl.so)
